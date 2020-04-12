@@ -44,7 +44,5 @@ void dump(void *buf, int len) {
 
         bytes++;
     }
-
-    printf("\n");
 }
 
