@@ -1,7 +1,20 @@
-#include<stdio.h>
+#include <stdio.h>
 
-void dump(void *addr, int len) {
-    unsigned char *bytes = (unsigned char *) addr;
+void print_chunkmap(unsigned char chunkmap[32][32]) {
+    for (int z = 0; z < 32; z++) {
+        for (int x = 0; x < 32; x++) {
+            if (chunkmap[z][x]) {
+                printf("# ");
+            } else {
+                printf(". ");
+            }
+        }
+        printf("\n");
+    }
+}
+
+void dump(void *buf, int len) {
+    unsigned char *bytes = (unsigned char *) buf;
 
     for (int i = 0; i < len; i++) {
         if (i % 16 == 0) {
@@ -19,7 +32,7 @@ void dump(void *addr, int len) {
             printf(" | ");
             for (int j = 0; j < 16; j++) {
                 char c = *(bytes-15+j);
-                if (c >= 32) {
+                if (c >= 32 && c != 127) {
                     printf("%c ", c);
                 } else {
                     printf(". ");
