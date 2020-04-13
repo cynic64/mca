@@ -70,11 +70,6 @@ void cmd_read(int argc, char **argv, FILE *fp) {
 
     printf("Read %i bytes from chunk (offset %#x)\n", count, offset);
 
-    int nbt_offset = chunk_nbt_offset(buf, "Palette", count);
-    printf("NBT Offset: %#x\n", nbt_offset);
-    int nbt_size = chunk_parse_nbt(buf + nbt_offset, count - nbt_offset);
-    printf("Size of NBT entry at %#x: %i\n", nbt_offset, nbt_size);
-
     // write to file if given a path, otherwise hex-dump to stdout
     if (argc == 6) {
         char *path = argv[5];
