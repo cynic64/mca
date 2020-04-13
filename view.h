@@ -34,9 +34,9 @@ void dump(void *buf, int len) {
             for (int j = 0; j < 16; j++) {
                 char c = *(bytes-15+j);
                 if (c >= 32 && c != 127) {
-                    printf("%c ", c);
+                    putchar(c);
                 } else {
-                    printf(". ");
+                    putchar('.');
                 }
             }
 

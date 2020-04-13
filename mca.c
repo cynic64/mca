@@ -6,47 +6,42 @@
 
 #include "mca.h"
 #include "view.h"
+#include "common.h"
 
 void get_chunkmap(unsigned char chunkmap[32][32], FILE *fp);
-void cmd_print(FILE *fp);
-void cmd_read(int argc, char **argv, FILE *fp);
+void cmd_print(int arc, char **argv);
+void cmd_read(int argc, char **argv);
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 2) {
         printf("Too few arguments (%i)\n", argc - 1);
-        printf("Need: <path> <command> [args]\n");
+        printf("Need: <command> [args]\n");
         exit(1);
     }
 
-    char *path = argv[1];
-
-    FILE *fp = fopen(path, "r");
-
-    if (fp == NULL) {
-        printf("Could not open file %s!\n", path);
-        exit(1);
-    }
-
-    if (strcmp(argv[2], "print") == 0) {
-        cmd_print(fp);
-    } else if (strcmp(argv[2], "read") == 0) {
-        cmd_read(argc, argv, fp);
+    char *cmd = argv[1];
+    if (strcmp(cmd, "print") == 0) {
+        cmd_print(argc, argv);
+    } else if (strcmp(cmd, "read") == 0) {
+        cmd_read(argc, argv);
     } else {
         printf("Invalid command: %s\n", argv[2]);
         exit(1);
     }
 
-    // cleanup
-    fclose(fp);
-
     return 0;
 }
 
-void cmd_read(int argc, char **argv, FILE *fp) {
+void cmd_read(int argc, char **argv) {
     if (argc < 5) {
-        printf("Too few arguments (%d): 'read' requires x, z, [path]\n", argc);
+        printf("Too few arguments (%d): read <inpath> <x> <z> [path]\n", argc);
         exit(1);
     }
+
+    char *path = argv[2];
+    printf("Reading from: %s\n", path);
+
+    FILE *fp = failing_open(path, "rb");
 
     int x = atoi(argv[3]);
     int z = atoi(argv[4]);
@@ -55,7 +50,7 @@ void cmd_read(int argc, char **argv, FILE *fp) {
 
     int offset = get_chunk_offset(fp, x, z);
 
-    if (offset  < 0) {
+    if (offset < 0) {
         printf("Chunk at (%d, %d) cannot be read because it does not exist.\n", x, z);
         exit(1);
     }
@@ -89,10 +84,21 @@ void cmd_read(int argc, char **argv, FILE *fp) {
     free(buf);
 }
 
-void cmd_print(FILE *fp) {
+void cmd_print(int argc, char **argv) {
+    if (argc < 3) {
+        printf("Too few arguments (%i). print <path>\n", argc);
+        exit(1);
+    }
+
+    char *path = argv[2];
+    printf("Opening: %s\n", path);
+    FILE *fp = failing_open(path, "rb");
+
     unsigned char chunkmap[32][32];
     get_chunkmap(chunkmap, fp);
     print_chunkmap(chunkmap);
+
+    fclose(fp);
 }
 
 void get_chunkmap(unsigned char chunkmap[32][32], FILE *fp) {
